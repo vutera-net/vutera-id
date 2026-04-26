@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String?
+  name          String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  profile       Profile?
+  
+  @@index([email])
+}
+
+model Profile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName      String?
+  gender        Gender
+  birthDate     DateTime
+  birthTime     String?   // HH:mm format (e.g., "14:30")
+  birthTimezone String?   // IANA timezone (e.g., "Asia/Ho_Chi_Minh")
+  birthLocation String?   // City/Province
+  energyType    String?    // Simplified to String for general identity use
+  aiMemory      Json?     // AI's long-term memory/insights about the user
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+}
