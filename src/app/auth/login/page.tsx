@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/auth/profile";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,11 +18,11 @@ export default function LoginPage() {
   useEffect(() => {
     fetch("/api/auth/me")
       .then((res) => {
-        if (res.ok) router.replace("/auth/profile");
+        if (res.ok) router.replace(redirectUrl);
         else setChecking(false);
       })
       .catch(() => setChecking(false));
-  }, [router]);
+  }, [router, redirectUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/auth/profile");
+       router.push(redirectUrl);
     } catch (err) {
       setError("Đã xảy ra lỗi. Vui lòng thử lại.");
       console.error(err);
