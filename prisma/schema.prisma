@@ -15,16 +15,39 @@ enum Gender {
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
+  emailVerified   DateTime?
+  verificationToken String? @unique
   passwordHash  String?
+  resetPasswordToken String? @unique
+  resetPasswordExpires DateTime?
+  ssoId         String?        @unique
+  role          String         @default("USER")
   name          String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   profile       Profile?
+  auditLogs     AuditLog[]
   
   @@index([email])
 }
 
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // e.g., "UPDATE_PROFILE", "RESET_PASSWORD"
+  field     String?  // e.g., "birthTime"
+  oldValue  String?
+  newValue  String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
 model Profile {
+
   id            String    @id @default(cuid())
   userId        String    @unique
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)

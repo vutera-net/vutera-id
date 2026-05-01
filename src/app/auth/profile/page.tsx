@@ -104,6 +104,34 @@ export default function ProfilePage() {
     router.push("/auth/login");
   };
 
+  const handleDeleteAccount = async () => {
+    if (!confirm("Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác và toàn bộ dữ liệu của bạn sẽ bị xóa vĩnh viễn.")) {
+      return;
+    }
+
+    setGlobalError("");
+    setSaveLoading(true);
+    try {
+      const response = await fetch("/api/auth/account/delete", {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setGlobalError(data.error || "Không thể xóa tài khoản");
+        return;
+      }
+
+      alert("Tài khoản đã được xóa.");
+      router.push("/auth/login");
+    } catch (err) {
+      setGlobalError("Đã xảy ra lỗi khi xóa tài khoản");
+      console.error(err);
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
   // Client-side validation trước khi gọi API
   const validate = (): FormErrors => {
     const errors: FormErrors = {};
@@ -206,17 +234,20 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-slate-900">Harmony AI — Tài khoản</h1>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-red-600 hover:text-red-700 font-medium"
-          >
-            Đăng xuất
-          </button>
-        </div>
-      </div>
+       <div className="bg-white border-b border-slate-200">
+         <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
+           <div className="flex items-center gap-3">
+             <img src="/logo.png" alt="Vutera Logo" className="h-8 w-auto" />
+             <h1 className="text-2xl font-bold text-slate-900">Vutera Account</h1>
+           </div>
+           <button
+             onClick={handleLogout}
+             className="text-sm text-red-600 hover:text-red-700 font-medium"
+           >
+             Đăng xuất
+           </button>
+         </div>
+       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8">
         {globalError && (
@@ -403,18 +434,35 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Bước tiếp theo */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="font-bold text-blue-900 mb-2">Bước tiếp theo</h3>
-          <p className="text-blue-800 text-sm mb-3">
-            Hồ sơ của bạn đã sẵn sàng. Bây giờ bạn có thể:
-          </p>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Dùng tài khoản này để đăng nhập vào các ứng dụng khác</li>
-            <li>• Truy cập phân tích Master AI tại menhan.vutera.net</li>
-            <li>• Theo dõi vận mệnh trong Nhật ký số phận</li>
-          </ul>
-        </div>
+         {/* Bước tiếp theo */}
+         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+           <h3 className="font-bold text-blue-900 mb-2">Bước tiếp theo</h3>
+           <p className="text-blue-800 text-sm mb-3">
+             Hồ sơ của bạn đã sẵn sàng. Bây giờ bạn có thể:
+           </p>
+           <ul className="text-sm text-blue-800 space-y-1">
+             <li>• Dùng tài khoản này để đăng nhập vào các ứng dụng khác</li>
+             <li>• Truy cập phân tích Master AI tại menhan.vutera.net</li>
+             <li>• Theo dõi vận mệnh trong Nhật ký số phận</li>
+           </ul>
+         </div>
+
+         {/* Vùng nguy hiểm */}
+         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+           <h3 className="font-bold text-red-900 mb-2">Vùng nguy hiểm</h3>
+           <p className="text-red-800 text-sm mb-4">
+             Xóa tài khoản sẽ xóa vĩnh viễn toàn bộ dữ liệu cá nhân và hồ sơ sinh của bạn. 
+             Hành động này không thể hoàn tác.
+           </p>
+           <button
+             onClick={handleDeleteAccount}
+             disabled={saveLoading}
+             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 text-sm font-medium transition"
+           >
+             {saveLoading ? "Đang xử lý..." : "Xóa tài khoản của tôi"}
+           </button>
+         </div>
+
       </div>
     </div>
   );

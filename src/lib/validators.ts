@@ -12,7 +12,13 @@ export const RegisterSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
       "Mật khẩu phải có chữ hoa, chữ thường và số"
     ),
-  name: z.string().min(2, "Họ tên tối thiểu 2 ký tự").optional(),
+  name: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().min(2, "Họ tên tối thiểu 2 ký tự").optional()
+  ),
+  acceptTerms: z.literal(true, {
+    errorMap: () => ({ message: "Bạn cần đồng ý với Điều khoản sử dụng" }),
+  }),
 });
 
 export type RegisterInput = z.infer<typeof RegisterSchema>;

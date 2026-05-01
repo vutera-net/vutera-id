@@ -77,6 +77,33 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Audit logging for sensitive changes
+    if (existingProfile) {
+      const logs: any[] = [];
+      const sensitiveFields = ["birthTime", "birthDate", "gender"];
+      
+      for (const field of sensitiveFields) {
+        const oldValue = (existingProfile as any)[field];
+        const newValue = (profile as any)[field];
+        
+        if (oldValue !== newValue) {
+          logs.push({
+            userId: payload.userId,
+            action: "UPDATE_PROFILE",
+            field,
+            oldValue: String(oldValue),
+            newValue: String(newValue),
+            ipAddress: request.headers.get("x-forwarded-for") || "unknown",
+            userAgent: request.headers.get("user-agent") || "unknown",
+          });
+        }
+      }
+
+      if (logs.length > 0) {
+        await prisma.auditLog.createMany({ data: logs });
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,

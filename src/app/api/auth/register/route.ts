@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword, generateToken } from "@/lib/auth";
 import { RegisterSchema } from "@/lib/validators";
+import { generateResetToken, sendEmail } from "@/lib/mail";
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,13 +37,27 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password);
 
+    // Generate verification token
+    const verificationToken = generateResetToken();
+
     // Create user in database
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         name: name || email.split("@")[0],
+        verificationToken,
       },
+    });
+
+    // Send verification email
+    const verifyLink = `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email?token=${verificationToken}`;
+
+    await sendEmail({
+      to: email,
+      subject: "Xác thực tài khoản Harmony AI",
+      text: `Chào ${user.name}, vui lòng xác thực email của bạn bằng cách nhấn vào liên kết sau: ${verifyLink}`,
+      html: `<p>Chào <strong>${user.name}</strong>,</p><p>Vui lòng xác thực email của bạn bằng cách nhấn vào liên kết sau:</p><a href="${verifyLink}">${verifyLink}</a>`,
     });
 
     // Generate JWT token
@@ -52,7 +67,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json(
       {
         success: true,
-        message: "Registration successful",
+        message: "Registration successful. Please verify your email.",
         user: {
           id: user.id,
           email: user.email,
