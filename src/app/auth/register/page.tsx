@@ -83,7 +83,7 @@ export default function RegisterPage() {
            <h1 className="text-3xl font-bold text-slate-900 mb-2">
              Tham gia Vutera
            </h1>
-           <p className="text-slate-600 mb-6">Tạo tài khoản định danh cho Harmony AI</p>
+           <p className="text-slate-600 mb-6">Tạo tài khoản định danh cho Vutera</p>
 
 
           {error && (

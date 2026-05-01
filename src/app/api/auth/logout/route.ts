@@ -8,7 +8,13 @@ export async function POST(request: NextRequest) {
     );
 
     // Clear auth_token cookie
-    response.cookies.delete("auth_token");
+    response.cookies.set({
+      name: "auth_token",
+      value: "",
+      maxAge: 0,
+      domain: process.env.NODE_ENV === "production" ? ".vutera.net" : "localhost",
+      path: "/",
+    });
 
     return response;
   } catch (error) {

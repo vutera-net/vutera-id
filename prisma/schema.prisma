@@ -52,7 +52,6 @@ model Profile {
   userId        String    @unique
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  fullName      String?
   gender        Gender
   birthDate     DateTime
   birthTime     String?   // HH:mm format (e.g., "14:30")

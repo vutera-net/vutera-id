@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     await sendEmail({
       to: email,
-      subject: "Xác thực tài khoản Harmony AI",
+      subject: "Xác thực tài khoản Vutera",
       text: `Chào ${user.name}, vui lòng xác thực email của bạn bằng cách nhấn vào liên kết sau: ${verifyLink}`,
       html: `<p>Chào <strong>${user.name}</strong>,</p><p>Vui lòng xác thực email của bạn bằng cách nhấn vào liên kết sau:</p><a href="${verifyLink}">${verifyLink}</a>`,
     });

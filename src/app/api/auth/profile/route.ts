@@ -45,14 +45,21 @@ export async function POST(request: NextRequest) {
     const { fullName, gender, birthDate, birthTime, birthTimezone, birthLocation } =
       validation.data;
 
-    // Prepare update data (only include provided fields)
+    // Prepare update data for Profile (only include provided fields, excluding fullName)
     const updateData: Record<string, any> = {};
-    if (fullName !== undefined) updateData.fullName = fullName;
     if (gender !== undefined) updateData.gender = gender;
     if (birthDate !== undefined) updateData.birthDate = new Date(birthDate);
     if (birthTime !== undefined) updateData.birthTime = birthTime;
     if (birthTimezone !== undefined) updateData.birthTimezone = birthTimezone;
     if (birthLocation !== undefined) updateData.birthLocation = birthLocation;
+
+    // Update User's name if fullName is provided
+    if (fullName !== undefined) {
+      await prisma.user.update({
+        where: { id: payload.userId },
+        data: { name: fullName },
+      });
+    }
 
     // Upsert profile
     const existingProfile = await prisma.profile.findUnique({

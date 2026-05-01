@@ -70,7 +70,7 @@ function LoginContent() {
              <h1 className="text-3xl font-bold text-slate-900 mb-2 text-center">
                Vutera Account
              </h1>
-             <p className="text-slate-600 mb-6 text-center">Quản lý định danh cho hệ sinh thái Harmony AI</p>
+             <p className="text-slate-600 mb-6 text-center">Quản lý định danh cho hệ sinh thái Vutera</p>
 
 
           {error && (

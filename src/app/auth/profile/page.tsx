@@ -46,6 +46,23 @@ const inputBase =
 const inputNormal = `${inputBase} border-slate-300`;
 const inputError = `${inputBase} border-red-500 focus:ring-red-400`;
 
+const YEARS = Array.from({ length: new Date().getFullYear() - 1900 + 1 }, (_, i) => (1900 + i).toString());
+const MONTHS = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, "0"));
+const DAYS = Array.from({ length: 31 }, (_, i) => (i + 1).toString().padStart(2, "0"));
+
+const COMMON_TIMEZONES = [
+  { label: "Hà Nội / Bangkok (GMT+7)", value: "Asia/Ho_Chi_Minh" },
+  { label: "Tokyo / Seoul (GMT+9)", value: "Asia/Tokyo" },
+  { label: "Beijing / Singapore (GMT+8)", value: "Asia/Shanghai" },
+  { label: "New Delhi (GMT+5:30)", value: "Asia/Kolkata" },
+  { label: "London (GMT+0)", value: "Europe/London" },
+  { label: "Paris / Berlin (GMT+1)", value: "Europe/Paris" },
+  { label: "New York (GMT-5)", value: "America/New_York" },
+  { label: "Los Angeles (GMT-8)", value: "America/Los_Angeles" },
+  { label: "UTC (GMT+0)", value: "UTC" },
+];
+
+
 function FieldError({ msg }: { msg?: string }) {
   if (!msg) return null;
   return <p className="text-red-600 text-xs mt-1">{msg}</p>;
@@ -68,32 +85,32 @@ export default function ProfilePage() {
     birthLocation: "",
   });
 
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch("/api/auth/me");
-      if (!response.ok) {
-        router.push("/auth/login");
-        return;
-      }
-      const data = await response.json();
-      setUser(data.user);
-      if (data.user.profile) {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (!response.ok) {
+          router.push("/auth/login");
+          return;
+        }
+        const data = await response.json();
+        setUser(data.user);
+        
+        const profile = data.user.profile;
         setFormData({
-          fullName: data.user.profile.fullName || "",
-          gender: data.user.profile.gender || "",
-          birthDate: data.user.profile.birthDate?.split("T")[0] || "",
-          birthTime: data.user.profile.birthTime || "",
-          birthTimezone: data.user.profile.birthTimezone || "Asia/Ho_Chi_Minh",
-          birthLocation: data.user.profile.birthLocation || "",
+          fullName: data.user.name || profile?.fullName || "",
+          gender: profile?.gender || "",
+          birthDate: profile?.birthDate?.split("T")[0] || "",
+          birthTime: profile?.birthTime || "",
+          birthTimezone: profile?.birthTimezone || "Asia/Ho_Chi_Minh",
+          birthLocation: profile?.birthLocation || "",
         });
+      } catch (err) {
+        setGlobalError("Không thể tải thông tin hồ sơ");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setGlobalError("Không thể tải thông tin hồ sơ");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   useEffect(() => {
     fetchUserData();
@@ -259,21 +276,17 @@ export default function ProfilePage() {
         {/* Thông tin tài khoản */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-xl font-bold text-slate-900 mb-4">Thông tin tài khoản</h2>
-          <div className="space-y-2 text-slate-700">
-            <p>
-              <span className="font-medium">Email:</span> {user.email}
-            </p>
-            <p>
-              <span className="font-medium">Tên hiển thị:</span>{" "}
-              {user.name || <span className="text-slate-400">Chưa cập nhật</span>}
-            </p>
-            {user.subscription && (
-              <p>
-                <span className="font-medium">Gói dịch vụ:</span>{" "}
-                {planLabel[user.subscription.plan] || user.subscription.plan}
-              </p>
-            )}
-          </div>
+           <div className="space-y-2 text-slate-700">
+             <p>
+               <span className="font-medium">Email:</span> {user.email}
+             </p>
+             {user.subscription && (
+               <p>
+                 <span className="font-medium">Gói dịch vụ:</span>{" "}
+                 {planLabel[user.subscription.plan] || user.subscription.plan}
+               </p>
+             )}
+           </div>
         </div>
 
         {/* Thông tin sinh */}
@@ -307,37 +320,70 @@ export default function ProfilePage() {
                 <FieldError msg={fieldErrors.fullName} />
               </div>
 
-              {/* Giới tính + Ngày sinh */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Giới tính
-                  </label>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                    className={fieldErrors.gender ? inputError : inputNormal}
-                  >
-                    <option value="">Chọn</option>
-                    <option value="MALE">Nam</option>
-                    <option value="FEMALE">Nữ</option>
-                  </select>
-                  <FieldError msg={fieldErrors.gender} />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Ngày sinh
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                    className={fieldErrors.birthDate ? inputError : inputNormal}
-                  />
-                  <FieldError msg={fieldErrors.birthDate} />
-                </div>
-              </div>
+               {/* Giới tính + Ngày sinh */}
+               <div className="grid grid-cols-2 gap-4">
+                 <div>
+                   <label className="block text-sm font-medium text-slate-700 mb-1">
+                     Giới tính
+                   </label>
+                   <select
+                     value={formData.gender}
+                     onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                     className={fieldErrors.gender ? inputError : inputNormal}
+                   >
+                     <option value="">Chọn</option>
+                     <option value="MALE">Nam</option>
+                     <option value="FEMALE">Nữ</option>
+                   </select>
+                   <FieldError msg={fieldErrors.gender} />
+                 </div>
+ 
+                 <div>
+                   <label className="block text-sm font-medium text-slate-700 mb-1">
+                     Ngày sinh (Dương lịch)
+                   </label>
+                   <div className="grid grid-cols-3 gap-2">
+                     {(() => {
+                       const [y, m, d] = formData.birthDate ? formData.birthDate.split("-") : ["", "", ""];
+                       return (
+                         <>
+                           <select
+                             value={d}
+                             onChange={(e) => setFormData({ ...formData, birthDate: `${y}-${m}-${e.target.value}` })}
+                             className={fieldErrors.birthDate ? inputError : inputNormal}
+                           >
+                             <option value="">Ngày</option>
+                             {DAYS.map((day) => (
+                               <option key={day} value={day}>{parseInt(day)}</option>
+                             ))}
+                           </select>
+                           <select
+                             value={m}
+                             onChange={(e) => setFormData({ ...formData, birthDate: `${y}-${e.target.value}-${d}` })}
+                             className={fieldErrors.birthDate ? inputError : inputNormal}
+                           >
+                             <option value="">Tháng</option>
+                             {MONTHS.map((month, idx) => (
+                               <option key={month} value={month}>{idx + 1}</option>
+                             ))}
+                           </select>
+                           <select
+                             value={y}
+                             onChange={(e) => setFormData({ ...formData, birthDate: `${e.target.value}-${m}-${d}` })}
+                             className={fieldErrors.birthDate ? inputError : inputNormal}
+                           >
+                             <option value="">Năm</option>
+                             {YEARS.map((year) => (
+                               <option key={year} value={year}>{year}</option>
+                             ))}
+                           </select>
+                         </>
+                       );
+                     })()}
+                   </div>
+                   <FieldError msg={fieldErrors.birthDate} />
+                 </div>
+               </div>
 
               {/* Giờ sinh + Múi giờ */}
               <div className="grid grid-cols-2 gap-4">
@@ -358,13 +404,17 @@ export default function ProfilePage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Múi giờ
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.birthTimezone}
                     onChange={(e) => setFormData({ ...formData, birthTimezone: e.target.value })}
                     className={fieldErrors.birthTimezone ? inputError : inputNormal}
-                    placeholder="Asia/Ho_Chi_Minh"
-                  />
+                  >
+                    {COMMON_TIMEZONES.map((tz) => (
+                      <option key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </option>
+                    ))}
+                  </select>
                   <FieldError msg={fieldErrors.birthTimezone} />
                 </div>
               </div>

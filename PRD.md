@@ -3,10 +3,10 @@
 ## I. Product Overview
 
 **1.1 Purpose**
-`id.vutera.net` is the centralized Identity and Access Management (IAM) system for the Harmony AI ecosystem. It provides Single Sign-On (SSO) capabilities, ensuring that users have a seamless experience when moving between the Brand Hub, TuVi App, and MenhAn Sanctuary.
+`id.vutera.net` is the centralized Identity and Access Management (IAM) system for the Vutera ecosystem. It provides Single Sign-On (SSO) capabilities, ensuring that users have a seamless experience when moving between the Brand Hub, TuVi App, and MenhAn Sanctuary.
 
 **1.2 Target Users**
-- All users of the Harmony AI ecosystem.
+- All users of the Vutera ecosystem.
 - System administrators managing user access and profiles.
 
 **1.3 Core Value Proposition**

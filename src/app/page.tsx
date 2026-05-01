@@ -6,7 +6,7 @@ export default function Home() {
       <div className="max-w-lg w-full mx-4">
         {/* Logo/Branding */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">Harmony AI</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">Vutera</h1>
           <p className="text-slate-300">Trung tâm Định danh & Xác thực</p>
           <div className="h-1 w-16 bg-blue-500 mx-auto mt-4"></div>
         </div>
@@ -18,7 +18,7 @@ export default function Home() {
               Bắt đầu ngay
             </h2>
             <p className="text-slate-600 text-sm mt-2">
-              Quản lý tài khoản Harmony AI của bạn
+              Quản lý tài khoản Vutera của bạn
             </p>
           </div>
 
@@ -63,7 +63,7 @@ export default function Home() {
 
         {/* Footer */}
         <div className="mt-12 text-center text-slate-400 text-xs">
-          <p>Một phần của hệ sinh thái Harmony AI</p>
+          <p>Một phần của hệ sinh thái Vutera</p>
           <p className="mt-2">
             <span className="text-slate-500">Dịch vụ khác:</span>{" "}
             <span className="text-slate-400">
